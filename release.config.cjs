@@ -15,6 +15,7 @@ const repositoryUrl = "git@github.com:The-Asintota/pruebas.git";
 const repositoryUrlCommit = "https://github.com/The-Asintota/pruebas/commit/";
 const repositoryUrlMergeRequests = "https://github.com/The-Asintota/pruebas/pulls/";
 
+
 module.exports = {
   branches: ['main'],
   repositoryUrl: repositoryUrl,
@@ -29,13 +30,14 @@ module.exports = {
           types
         },
         writerOpts: {
+          // 1. El mainTemplate ahora usa H1 (#) para los títulos de grupo
           mainTemplate: `{{> header}}
 
 {{#each commitGroups}}
 {{#if title}}
-## {{title}}
-{{/if}}
+# {{title}}
 
+{{/if}}
 {{#each commits}}
 {{> commit root=@root}}
 {{/each}}
@@ -45,7 +47,6 @@ module.exports = {
           transform: (commit, context) => {
             let discard = true;
             
-            // Clone the commit object so we don't modify the immutable original
             const mutableCommit = { ...commit };
             mutableCommit.notes = commit.notes.map(note => ({ ...note }));
 
@@ -59,7 +60,6 @@ module.exports = {
             }
 
             if (mutableCommit.subject && typeof mutableCommit.subject === 'string') {
-              // Capitalize the first letter of the subject
               mutableCommit.subject = mutableCommit.subject.charAt(0).toUpperCase() + mutableCommit.subject.slice(1);
             }
 
@@ -67,7 +67,6 @@ module.exports = {
 
             if (definition) {
               if (definition.hidden && mutableCommit.notes.length === 0) return;
-              
               mutableCommit.type = definition.section;
               discard = false;
             } else if (mutableCommit.notes.length === 0) {
@@ -76,6 +75,7 @@ module.exports = {
 
             if (discard) return;
 
+            // Mantenemos el hash corto por si decides usarlo en el futuro
             if (mutableCommit.hash) {
               mutableCommit.shortHash = mutableCommit.hash.substring(0, 7);
             }
@@ -83,44 +83,38 @@ module.exports = {
             return mutableCommit;
           },
           finalizeContext: (context, options, commits, keyCommit) => {
-            const baseUrl = repositoryUrlCommit;
             const prUrl = repositoryUrlMergeRequests;
             
             context.commitGroups.forEach(group => {
-              const byScope = {};
+              // 2. Ordenar todos los commits del grupo por "scope" alfabéticamente.
+              // Esto asegura que todos los de "users" vayan juntos y los de "auth" también, sin mezclarse.
+              group.commits.sort((a, b) => {
+                const scopeA = a.scope ? a.scope.toLowerCase() : '';
+                const scopeB = b.scope ? b.scope.toLowerCase() : '';
+                return scopeA.localeCompare(scopeB);
+              });
 
+              // (Opcional) Mantenemos tu lógica para enlazar issues si los mencionas en el subject
               group.commits.forEach(commit => {
-                const scope = commit.scope || 'Global';
-                commit.link = `${baseUrl}${commit.hash}`;
-                
                 if (commit.subject) {
                   commit.subject = commit.subject.replace(/#([0-9]+)/g, (_, issue) => {
                     return `[#${issue}](${prUrl}${issue})`;
                   });
                 }
-                
-                if (!byScope[scope]) byScope[scope] = [];
-                byScope[scope].push(commit);
               });
-              
-              const newCommits = [];
-
-              Object.keys(byScope).sort().forEach(scope => {
-                const title = scope.charAt(0).toUpperCase() + scope.slice(1);
-                newCommits.push({ scope: title, commits: byScope[scope] });
-              });
-              
-              group.commits = newCommits;
             });
 
             return context;
           },
-          commitPartial: `{{#if scope}}
-### {{scope}}
+          // 3. El partial usa H2 (##), pinta el cuerpo con {{{body}}} y agrega la línea divisoria
+          commitPartial: `## {{subject}}
+{{#if body}}
+
+{{{body}}}
 {{/if}}
-{{#each commits}}
-  - {{subject}} ([{{shortHash}}]({{link}}))
-{{/each}}`
+
+---
+`
         }
       }
     ],
