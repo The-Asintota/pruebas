@@ -11,9 +11,9 @@ const types = [
   { type: "chore", hidden: true }
 ];
 
-const repositoryUrl = "git@github.com:The-Asintota/pruebas.git";
-const repositoryUrlCommit = "https://github.com/The-Asintota/pruebas/commits/main/";
-const repositoryUrlMergeRequests = "https://github.com/The-Asintota/pruebas/pulls/";
+const repositoryUrl = "git@github.com:viavervit-dev/api-sacre.git";
+const repositoryUrlCommit = "https://github.com/viavervit-dev/api-sacre/commits/main/";
+const repositoryUrlMergeRequests = "https://github.com/viavervit-dev/api-sacre/pulls/";
 
 module.exports = {
   branches: ['main'],
@@ -29,16 +29,28 @@ module.exports = {
           types
         },
         writerOpts: {
+          mainTemplate: `{{> header}}
+
+{{#each commitGroups}}
+{{#if title}}
+## {{title}}
+{{/if}}
+
+{{#each commits}}
+{{> commit root=@root}}
+{{/each}}
+{{/each}}
+
+{{> footer}}`,
           transform: (commit, context) => {
             let discard = true;
-            const issues = [];
             
             // Clone the commit object so we don't modify the immutable original
             const mutableCommit = { ...commit };
             mutableCommit.notes = commit.notes.map(note => ({ ...note }));
 
             mutableCommit.notes.forEach(note => {
-              note.title = 'Cambios Importantes';
+              note.title = '🚨 Cambios Importantes (Breaking Changes)';
               discard = false;
             });
 
@@ -54,10 +66,11 @@ module.exports = {
             const definition = types.find(t => t.type === mutableCommit.type);
 
             if (definition) {
-              if (definition.hidden) return;
+              if (definition.hidden && mutableCommit.notes.length === 0) return;
+              
               mutableCommit.type = definition.section;
               discard = false;
-            } else {
+            } else if (mutableCommit.notes.length === 0) {
               return;
             }
 
@@ -112,10 +125,10 @@ module.exports = {
       }
     ],
     ['@semantic-release/changelog', { changelogFile: 'CHANGELOG.md' }],
-['@semantic-release/git', {
-  assets: ['CHANGELOG.md', 'pyproject.toml'],
-  message: 'chore(release): se actualizan referencias de las versiones [skip ci]'
-}],
+    ['@semantic-release/git', {
+      assets: ['CHANGELOG.md', 'pyproject.toml'],
+      message: 'chore(release): se actualizan referencias de las versiones [skip ci]'
+    }],
     ['@semantic-release/github', { githubUrl: 'https://github.com' }]
   ]
 };
