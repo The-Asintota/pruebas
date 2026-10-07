@@ -33,7 +33,7 @@ jobs:
             exit 1
           fi
       - name: Instalar dependencias del flujo
-        run: npm install --no-save semantic-release @semantic-release/commit-analyzer @semantic-release/release-notes-generator @semantic-release/changelog @semantic-release/git @semantic-release/github conventional-changelog-conventionalcommits
+        run: npm install --no-save semantic-release @semantic-release/commit-analyzer @semantic-release/release-notes-generator @semantic-release/changelog @semantic-release/git @semantic-release/github conventional-changelog-conventionalcommits@^7.0.0
       - name: Instalar dependencia toml para Python
         run: pip install toml
       - name: Ejecutar semantic-release en modo dry-run para captar la próxima versión
