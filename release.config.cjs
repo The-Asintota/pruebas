@@ -11,7 +11,7 @@ const types = [
   { type: "chore", hidden: true }
 ];
 
-const repositoryUrl = "git@github.com:The-Asintota/pruebas.git;
+const repositoryUrl = "git@github.com:The-Asintota/pruebas.git";
 const repositoryUrlCommit = "https://github.com/The-Asintota/pruebas/commits/main/";
 const repositoryUrlMergeRequests = "https://github.com/The-Asintota/pruebas/pulls/";
 
