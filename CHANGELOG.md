@@ -1,3 +1,10 @@
+## 0.3.0 (2026-10-07)
+
+## ✨ Nuevas Funcionalidades
+
+### Auth
+  - Nuevo servicio `POST api/v1/auth/logout/` ([19b127d](https://github.com/The-Asintota/pruebas/commits/main/19b127d5f838ed55d50fbfe34c392c0984eb29fd))
+
 ## 0.2.0 (2026-10-07)
 
 ### Auth
