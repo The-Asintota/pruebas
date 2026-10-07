@@ -11,9 +11,10 @@ const types = [
   { type: "chore", hidden: true }
 ];
 
-const repositoryUrl = "git@github.com:The-Asintota/pruebas.git";
-const repositoryUrlCommit = "https://github.com/The-Asintota/pruebas/commit/";
-const repositoryUrlMergeRequests = "https://github.com/The-Asintota/pruebas/pulls/";
+const repoSlug = process.env.GITHUB_REPOSITORY;
+const repositoryUrl = `https://github.com/${repoSlug}.git`;
+const repositoryUrlCommit = `https://github.com/${repoSlug}/commit/`;
+const repositoryUrlMergeRequests = `https://github.com/${repoSlug}/pull/`;
 
 module.exports = {
   branches: ['main'],
