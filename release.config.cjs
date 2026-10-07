@@ -116,8 +116,7 @@ module.exports = {
 {{#if body}}
 
 {{{body}}}
-{{/if}}
-{{#unless @last}}`
+{{/if}}`
         }
       }
     ],
