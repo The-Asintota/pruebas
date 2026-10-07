@@ -112,9 +112,10 @@ module.exports = {
 
 {{{body}}}
 {{/if}}
+{{#unless @last}}
 
 ---
-`
+{{/unless}}`
         }
       }
     ],
