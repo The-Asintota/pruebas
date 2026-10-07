@@ -1,3 +1,30 @@
+## 4.1.0 (2026-10-07)
+
+# ✨ Nuevas Funcionalidades
+
+## Nuevo servicio GET api/v1/auth/ ([0a65dc7](https://github.com/The-Asintota/pruebas/commit/0a65dc788f4158eee25a61ff79ccfae22e550735))
+
+Permite crear una cuenta de usuario con rol de cliente. Ejecuta validaciones sintácticas y comprobaciones de unicidad en la base de datos para prevenir duplicados.
+
+### Requisitos de Acceso
+- **Acceso Público:** Endpoint abierto. No requiere autenticación previa.
+
+### Flujo de Ejecución
+1. **Validación Sintáctica (DTO):**
+    - Valida el formato de correo electrónico, longitud de contraseña, límites de texto y tipos de documento permitidos.
+2. **Validaciones de Reglas de Negocio:**
+    - **Unicidad de Correo:** Comprueba que el correo electrónico no esté registrado.
+    - **Unicidad de Teléfono:** Comprueba que el número de teléfono no esté en uso.
+    - **Unicidad de Documento:** Comprueba que el número de documento no esté registrado.
+3. **Creación de Cuenta Base de Usuario:**
+    - Asigna el rol de cliente (`customer`).
+    - Encripta la contraseña mediante hashing seguro (bcrypt).
+    - Asocia el grupo y los permisos correspondientes.
+4. **Creación del Perfil de Cliente:**
+    - Registra los datos personales y de identificación, vinculándolos mediante clave foránea (`user_id`) a la cuenta de usuario creada.
+5. **Persistencia:**
+    - Guarda el registro en la base de datos.
+
 ## 4.0.0 (2026-10-07)
 
 # ✨ Nuevas Funcionalidades
