@@ -11,10 +11,9 @@ const types = [
   { type: "chore", hidden: true }
 ];
 
-const repositoryUrl = "git@github.com:The-Asintota/pruebas.git";
-const repositoryUrlCommit = "https://github.com/The-Asintota/pruebas/commit/";
-const repositoryUrlMergeRequests = "https://github.com/The-Asintota/pruebas/pulls/";
-
+const repositoryUrl = "git@github.com:viavervit-dev/api-sacre.git";
+const repositoryUrlCommit = "https://github.com/viavervit-dev/api-sacre/commits/main/";
+const repositoryUrlMergeRequests = "https://github.com/viavervit-dev/api-sacre/pulls/";
 
 module.exports = {
   branches: ['main'],
@@ -48,6 +47,15 @@ module.exports = {
             
             const mutableCommit = { ...commit };
             mutableCommit.notes = commit.notes.map(note => ({ ...note }));
+
+            if (!mutableCommit.type && mutableCommit.header) {
+              const match = mutableCommit.header.match(/^(\w+)(?:\(([^)]+)\))?(!?):\s*(.*)$/);
+              if (match) {
+                mutableCommit.type = match[1];
+                mutableCommit.scope = match[2];
+                mutableCommit.subject = match[4];
+              }
+            }
 
             mutableCommit.notes.forEach(note => {
               note.title = '🚨 Cambios Importantes (Breaking Changes)';
@@ -92,9 +100,8 @@ module.exports = {
               });
 
               group.commits.forEach(commit => {
-                // <-- Generamos el enlace de vuelta
-                commit.link = `${baseUrl}${commit.hash}`; 
-
+                commit.link = `${baseUrl}${commit.hash}`;
+                
                 if (commit.subject) {
                   commit.subject = commit.subject.replace(/#([0-9]+)/g, (_, issue) => {
                     return `[#${issue}](${prUrl}${issue})`;
@@ -109,7 +116,8 @@ module.exports = {
 {{#if body}}
 
 {{{body}}}
-{{/if}}`
+{{/if}}
+{{#unless @last}}`
         }
       }
     ],
