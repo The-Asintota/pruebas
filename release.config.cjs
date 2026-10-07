@@ -30,7 +30,6 @@ module.exports = {
           types
         },
         writerOpts: {
-          // 1. El mainTemplate ahora usa H1 (#) para los títulos de grupo
           mainTemplate: `{{> header}}
 
 {{#each commitGroups}}
@@ -75,7 +74,6 @@ module.exports = {
 
             if (discard) return;
 
-            // Mantenemos el hash corto por si decides usarlo en el futuro
             if (mutableCommit.hash) {
               mutableCommit.shortHash = mutableCommit.hash.substring(0, 7);
             }
@@ -83,19 +81,20 @@ module.exports = {
             return mutableCommit;
           },
           finalizeContext: (context, options, commits, keyCommit) => {
+            const baseUrl = repositoryUrlCommit;
             const prUrl = repositoryUrlMergeRequests;
             
             context.commitGroups.forEach(group => {
-              // 2. Ordenar todos los commits del grupo por "scope" alfabéticamente.
-              // Esto asegura que todos los de "users" vayan juntos y los de "auth" también, sin mezclarse.
               group.commits.sort((a, b) => {
                 const scopeA = a.scope ? a.scope.toLowerCase() : '';
                 const scopeB = b.scope ? b.scope.toLowerCase() : '';
                 return scopeA.localeCompare(scopeB);
               });
 
-              // (Opcional) Mantenemos tu lógica para enlazar issues si los mencionas en el subject
               group.commits.forEach(commit => {
+                // <-- Generamos el enlace de vuelta
+                commit.link = `${baseUrl}${commit.hash}`; 
+
                 if (commit.subject) {
                   commit.subject = commit.subject.replace(/#([0-9]+)/g, (_, issue) => {
                     return `[#${issue}](${prUrl}${issue})`;
@@ -106,16 +105,11 @@ module.exports = {
 
             return context;
           },
-          // 3. El partial usa H2 (##), pinta el cuerpo con {{{body}}} y agrega la línea divisoria
-          commitPartial: `## {{subject}}
+          commitPartial: `## {{subject}} ([{{shortHash}}]({{link}}))
 {{#if body}}
 
 {{{body}}}
-{{/if}}
-{{#unless @last}}
-
----
-{{/unless}}`
+{{/if}}`
         }
       }
     ],
