@@ -12,7 +12,7 @@ const types = [
 ];
 
 const repositoryUrl = "git@github.com:The-Asintota/pruebas.git";
-const repositoryUrlCommit = "https://github.com/The-Asintota/pruebas/commits/main/";
+const repositoryUrlCommit = "https://github.com/The-Asintota/pruebas/commit/";
 const repositoryUrlMergeRequests = "https://github.com/The-Asintota/pruebas/pulls/";
 
 module.exports = {
