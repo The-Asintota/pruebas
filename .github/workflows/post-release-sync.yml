@@ -24,8 +24,18 @@ jobs:
         run: |
           # 1. Asegurarnos de tener las últimas referencias locales de ambas ramas
           git fetch origin main development
+
+          # 2. Comprobar si realmente hubo un release
+          ULTIMO_COMMIT=$(git log -1 --format=%s origin/main)
           
-          # 2. Contar cuántos commits existen en 'main' que NO están en 'development'
+          if [[ "$ULTIMO_COMMIT" != chore(release):* ]]; then
+            echo "El flujo anterior terminó bien, pero NO se generó una nueva versión."
+            echo "Último commit detectado: $ULTIMO_COMMIT"
+            echo "No hay nada que sincronizar. Cancelando limpiamente..."
+            exit 0
+          fi
+          
+          # 3. Contar cuántos commits existen en 'main' que NO están en 'development'
           NUEVOS_COMMITS=$(git rev-list --count origin/development..origin/main)
           
           if [ "$NUEVOS_COMMITS" -eq "0" ]; then
@@ -33,7 +43,7 @@ jobs:
             exit 0
           fi
 
-          # 3. Comprobar si ya existe un PR de sincronización abierto
+          # 4. Comprobar si ya existe un PR de sincronización abierto
           PR_ABIERTO=$(gh pr list --base development --head main --state open --json number --jq 'length')
           
           if [ "$PR_ABIERTO" -gt "0" ]; then
@@ -41,7 +51,7 @@ jobs:
             exit 0
           fi
 
-          # 4. Crear el PR de forma segura
+          # 5. Crear el PR de forma segura
           gh pr create \
             --base development \
             --head main \
