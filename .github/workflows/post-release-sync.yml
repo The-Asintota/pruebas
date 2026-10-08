@@ -25,13 +25,14 @@ jobs:
           # 1. Asegurarnos de tener las últimas referencias locales de ambas ramas
           git fetch origin main development
 
-          # 2. Comprobar si realmente hubo un release
+          # 2. Leemos el título del último commit en main
           ULTIMO_COMMIT=$(git log -1 --format=%s origin/main)
+          echo "Último commit detectado en main: '$ULTIMO_COMMIT'"
           
-          if [[ "$ULTIMO_COMMIT" != chore(release):* ]]; then
-            echo "El flujo anterior terminó bien, pero NO se generó una nueva versión."
-            echo "Último commit detectado: $ULTIMO_COMMIT"
-            echo "No hay nada que sincronizar. Cancelando limpiamente..."
+          if echo "$ULTIMO_COMMIT" | grep -q "^chore(release):"; then
+            echo "Validación superada: El commit es de una release."
+          else
+            echo "Abortando: El commit no tiene el prefijo de release."
             exit 0
           fi
           
