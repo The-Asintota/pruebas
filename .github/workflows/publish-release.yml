@@ -1,20 +1,22 @@
-name: Publicar nueva versión
+name: Publish Release
 
 on:
   push:
     branches:
       - main
 
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 jobs:
   publish_release:
     if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      issues: write
-      pull-requests: write
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Cargar todo el historial de git del repositorio
         uses: actions/checkout@v4
