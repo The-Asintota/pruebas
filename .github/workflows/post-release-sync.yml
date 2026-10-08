@@ -29,7 +29,7 @@ jobs:
           NUEVOS_COMMITS=$(git rev-list --count origin/development..origin/main)
           
           if [ "$NUEVOS_COMMITS" -eq "0" ]; then
-            echo "✅ No hay commits nuevos en 'main'. Ambas ramas ya están sincronizadas."
+            echo "No hay commits nuevos en 'main'. Ambas ramas ya están sincronizadas."
             exit 0
           fi
 
@@ -37,15 +37,17 @@ jobs:
           PR_ABIERTO=$(gh pr list --base development --head main --state open --json number --jq 'length')
           
           if [ "$PR_ABIERTO" -gt "0" ]; then
-            echo "✅ Hay cambios, pero ya existe un PR de sincronización abierto. Omitiendo creación."
+            echo "Hay cambios, pero ya existe un PR de sincronización abierto. Omitiendo creación."
             exit 0
           fi
 
           # 4. Crear el PR de forma segura
-          # Como ya comprobamos que HAY cambios y NO HAY un PR abierto,
-          # si este comando falla ahora, será por un error 100% real (como falta de permisos o caída de GitHub).
           gh pr create \
             --base development \
             --head main \
-            --title "chore(sync): sincronizar release con development" \
-            --body "Sincronización automática de los cambios generados por el último release."
+            --title "Sincronización post-release" \
+            --body "Este Pull Request fue generado automáticamente por GitHub Actions.
+          
+          **Propósito:**
+          - Llevar los cambios del último Release publicado en \`main\` de vuelta a \`development\`.
+          - Evitar conflictos de fusión en el próximo ciclo de desarrollo."
