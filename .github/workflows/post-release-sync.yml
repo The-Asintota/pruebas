@@ -1,0 +1,30 @@
+name: Synchronize Development
+
+on:
+  workflow_run:
+    workflows: ["Publish Release"]
+    types:
+      - completed
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  sync_development:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Clonar el repositorio
+        uses: actions/checkout@v4
+      - name: Crear Pull Request hacia development
+        run: |
+          gh pr create \
+            --base development \
+            --head main \
+            --title "chore(sync): 🔄 sincronizar release con development" \
+            --body "Sincronización automática de los cambios generados por el último release (actualización de versión en pyproject.toml y CHANGELOG.md)." \
+            || echo "Ya existe un PR activo o no hay diferencias para sincronizar."
