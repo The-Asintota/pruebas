@@ -22,9 +22,30 @@ jobs:
         uses: actions/checkout@v4
       - name: Crear Pull Request hacia development
         run: |
+          # 1. Asegurarnos de tener las últimas referencias locales de ambas ramas
+          git fetch origin main development
+          
+          # 2. Contar cuántos commits existen en 'main' que NO están en 'development'
+          NUEVOS_COMMITS=$(git rev-list --count origin/development..origin/main)
+          
+          if [ "$NUEVOS_COMMITS" -eq "0" ]; then
+            echo "✅ No hay commits nuevos en 'main'. Ambas ramas ya están sincronizadas."
+            exit 0
+          fi
+
+          # 3. Comprobar si ya existe un PR de sincronización abierto
+          PR_ABIERTO=$(gh pr list --base development --head main --state open --json number --jq 'length')
+          
+          if [ "$PR_ABIERTO" -gt "0" ]; then
+            echo "✅ Hay cambios, pero ya existe un PR de sincronización abierto. Omitiendo creación."
+            exit 0
+          fi
+
+          # 4. Crear el PR de forma segura
+          # Como ya comprobamos que HAY cambios y NO HAY un PR abierto,
+          # si este comando falla ahora, será por un error 100% real (como falta de permisos o caída de GitHub).
           gh pr create \
             --base development \
             --head main \
-            --title "chore(sync): 🔄 sincronizar release con development" \
-            --body "Sincronización automática de los cambios generados por el último release (actualización de versión en pyproject.toml y CHANGELOG.md)." \
-            || echo "Ya existe un PR activo o no hay diferencias para sincronizar."
+            --title "chore(sync): sincronizar release con development" \
+            --body "Sincronización automática de los cambios generados por el último release."
